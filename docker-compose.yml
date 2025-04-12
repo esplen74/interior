@@ -13,6 +13,8 @@ services:
       - huy-network
     depends_on:
       - mongodb
+    volumes:
+    - ./backend/public/images:/app/public/images
 
   frontend:
     build: ./noithatnhuy

@@ -44,7 +44,7 @@ public class ProductController {
     ) {
         try {
             // Lấy đường dẫn tuyệt đối của thư mục public/images/category/{categoryId}
-            String uploadDir = "D:/Study/ReactJS/noithatnhuy/public/images/category/" + categoryId;
+            String uploadDir = new File("public/images/category/" + categoryId).getAbsolutePath();
             File dir = new File(uploadDir);
 
             if (!dir.exists()) {
