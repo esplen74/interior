@@ -1,0 +1,44 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.release  # Local dev build jar ngoài Docker
+      # dockerfile: Dockerfile.build  # CI/CD build jar trong Docker
+    container_name: backend-huy
+    ports:
+      - "8080:8080"
+    env_file:
+      - ./backend/.env
+    networks:
+      - huy-network
+    depends_on:
+      - mongodb
+
+  frontend:
+    build: ./noithatnhuy
+    container_name: frontend-huy
+    ports:
+      - "80:3000"
+    env_file:
+      - ./noithatnhuy/.env.local
+    networks:
+      - huy-network
+    depends_on:
+      - backend
+
+  mongodb:
+    image: mongo
+    container_name: mongodb-huy
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+      - ./mongo-seed:/docker-entrypoint-initdb.d:ro  # Thư mục chứa JSON
+    networks:
+      - huy-network
+
+networks:
+  huy-network:
+
+volumes:
+  mongo-data:
