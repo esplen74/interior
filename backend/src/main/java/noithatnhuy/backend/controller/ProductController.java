@@ -57,7 +57,6 @@ public class ProductController {
 
             // Lưu file vào thư mục đã chỉ định
             image.transferTo(new File(filePath));
-            System.out.println("File path: " + filePath);
 
             // Cập nhật thông tin sản phẩm
             Product product = new Product();
@@ -113,7 +112,7 @@ public class ProductController {
 
         // Nếu có upload ảnh mới thì xử lý lưu file
         if (imageFile != null && !imageFile.isEmpty()) {
-            String uploadDir = "D:/Study/ReactJS/noithatnhuy/public/images/category/" + categoryId;
+            String uploadDir = new File("public/images/category/" + categoryId).getAbsolutePath();
             String fileName = imageFile.getOriginalFilename();
 
             try {
