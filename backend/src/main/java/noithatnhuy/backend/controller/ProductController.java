@@ -17,6 +17,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/products")
@@ -38,7 +39,6 @@ public class ProductController {
             @RequestParam("categoryId") int categoryId,
             @RequestParam("hot") boolean hot,
             @RequestParam("amount") int amount,
-            @RequestParam("saleFlg") int saleFlg,
             @RequestParam("amountSale") int amountSale,
             @RequestParam("description") String description
     ) {
@@ -51,9 +51,10 @@ public class ProductController {
                 dir.mkdirs(); // Tạo thư mục nếu chưa tồn tại
             }
 
-            // Đảm bảo file ảnh được lưu đúng tên
-            String fileName = image.getOriginalFilename(); // Tên file ảnh
-            String filePath = uploadDir + File.separator + fileName; // Đường dẫn file đầy đủ
+            String originalFilename = image.getOriginalFilename();
+            String fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
+            String uniqueFileName = "product_" + UUID.randomUUID() + fileExtension; // Ví dụ: product_123.jpg
+            String filePath = uploadDir + File.separator + uniqueFileName; // Đường dẫn file đầy đủ
 
             // Lưu file vào thư mục đã chỉ định
             image.transferTo(new File(filePath));
@@ -61,11 +62,10 @@ public class ProductController {
             // Cập nhật thông tin sản phẩm
             Product product = new Product();
             product.setProductName(productName);
-            product.setImage("/images/category/" + categoryId + "/" + fileName); // Đường dẫn ảnh trong ứng dụng
+            product.setImage("/images/category/" + categoryId + "/" + uniqueFileName); // Đường dẫn ảnh trong ứng dụng
             product.setCategoryId(categoryId);
             product.setHot(hot);
             product.setAmount(amount);
-            product.setSaleFlg(saleFlg);
             product.setAmountSale(amountSale);
             product.setDescription(description);
 
@@ -90,7 +90,6 @@ public class ProductController {
             @RequestParam("categoryId") int categoryId,
             @RequestParam("hot") boolean hot,
             @RequestParam("amount") int amount,
-            @RequestParam("saleFlg") int saleFlg,
             @RequestParam("amountSale") int amountSale,
             @RequestParam("description") String description,
             @RequestParam(value = "image", required = false) MultipartFile imageFile // có thể null
@@ -106,31 +105,44 @@ public class ProductController {
         product.setCategoryId(categoryId);
         product.setHot(hot);
         product.setAmount(amount);
-        product.setSaleFlg(saleFlg);
         product.setAmountSale(amountSale);
         product.setDescription(description);
 
-        // Nếu có upload ảnh mới thì xử lý lưu file
         if (imageFile != null && !imageFile.isEmpty()) {
+            // Đường dẫn lưu ảnh
             String uploadDir = new File("public/images/category/" + categoryId).getAbsolutePath();
-            String fileName = imageFile.getOriginalFilename();
+
+            // Tạo tên file duy nhất (dùng ID sản phẩm hoặc UUID)
+            String originalFilename = imageFile.getOriginalFilename();
+            String fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
+            String uniqueFileName = "product_" + UUID.randomUUID() + fileExtension;
 
             try {
+                // Tạo thư mục nếu chưa có
                 Path uploadPath = Paths.get(uploadDir);
                 if (!Files.exists(uploadPath)) {
                     Files.createDirectories(uploadPath);
                 }
-                Path filePath = uploadPath.resolve(fileName);
+
+                // Xóa ảnh cũ nếu có
+                if (product.getImage() != null) {
+                    Path oldImagePath = Paths.get("public" + product.getImage());
+                    Files.deleteIfExists(oldImagePath);
+                }
+
+                // Ghi ảnh mới
+                Path filePath = uploadPath.resolve(uniqueFileName);
                 Files.copy(imageFile.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
-                // Lưu tên file vào DB
-                product.setImage("/images/category/" + categoryId + "/" + fileName);
-                System.out.println("File path update: " + filePath);
+                // Lưu đường dẫn tương đối vào DB
+                product.setImage("/images/category/" + categoryId + "/" + uniqueFileName);
+
             } catch (IOException e) {
                 e.printStackTrace();
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
             }
         }
+
 
         Product updatedProduct = repository.save(product);
         return ResponseEntity.ok(updatedProduct);
@@ -139,10 +151,30 @@ public class ProductController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProduct(@PathVariable String id) {
-        if (!repository.existsById(id)) {
+        Optional<Product> optionalProduct = repository.findById(id);
+
+        if (optionalProduct.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
+
+        Product product = optionalProduct.get();
+
+        // Xóa ảnh nếu có
+        if (product.getImage() != null && !product.getImage().isEmpty()) {
+            try {
+                Path imagePath = Paths.get("public" + product.getImage());
+                if (Files.exists(imagePath)) {
+                    Files.delete(imagePath);
+                    System.out.println("Đã xóa ảnh: " + imagePath);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // Xóa sản phẩm khỏi DB
         repository.deleteById(id);
         return ResponseEntity.noContent().build();
     }
+
 }

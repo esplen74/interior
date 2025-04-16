@@ -16,8 +16,6 @@ public class Product {
     private boolean hot;
     @Field("amount")
     private double amount;
-    @Field("sale_flg")
-    private int saleFlg;
     @Field("amount_sale")
     private double amountSale;
     @Field("description")
@@ -71,14 +69,6 @@ public class Product {
 
     public void setAmount(double amount) {
         this.amount = amount;
-    }
-
-    public int getSaleFlg() {
-        return saleFlg;
-    }
-
-    public void setSaleFlg(int saleFlg) {
-        this.saleFlg = saleFlg;
     }
 
     public double getAmountSale() {
