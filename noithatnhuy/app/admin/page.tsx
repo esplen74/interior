@@ -806,9 +806,9 @@ export default function AdminPage() {
                         }`}
                         disabled={editAmount === 0}
                       />
-                      <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">
+                      {/* <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">
                         VNĐ
-                      </span>
+                      </span> */}
                     </div>
 
                     {/* Hiển thị cảnh báo */}
