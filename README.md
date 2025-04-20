@@ -54,7 +54,7 @@
 - Docker & Docker Compose
 - MongoDB
 
-### Bước 1: Clone repo
+### Run
 ```bash
 git clone https://github.com/esplen74/interior.git
 open bash terminal
