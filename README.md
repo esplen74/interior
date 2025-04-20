@@ -11,6 +11,8 @@
 - **DevOps:** Docker & Docker Compose
 - **Khác:** Multer (upload ảnh), Email Service (liên hệ)
 
+![Cấu trúc dự án](project-structure1.png)
+
 ---
 
 ## 🧩 Các Chức Năng Chính
@@ -27,24 +29,9 @@
 - Form **liên hệ** gửi email về quản trị viên
 
 ---
-
 ## 🗂️ Cấu Trúc Dự Án
-📁 project-root/
-├── 📁 BE/                    # Backend Spring Boot
-│   ├── src/main/java/...    # API, Controller, Services
-│   └── Dockerfile           # Docker hóa backend
-│
-├── 📁 FE/noithatnhuy/       # Frontend Next.js
-│   ├── app/                 # Các page (admin, home, contact, ...)
-│   ├── components/          # Các component dùng chung
-│   ├── lib/                 # Gọi API
-│   └── public/images/       # Ảnh sản phẩm/danh mục
-│
-├── 📁 mongo-seed/           # Dữ liệu mẫu MongoDB
-│   └── init.js              # Script seed data
-│
-├── docker-compose.yml       # Chạy toàn bộ hệ thống
-└── README.md                # File mô tả này
+
+![Cấu trúc dự án](project-structure2.png)
 
 ## ⚙️ Hướng Dẫn Chạy Local
 
